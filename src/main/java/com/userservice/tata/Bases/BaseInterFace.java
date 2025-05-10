@@ -7,4 +7,5 @@ public interface BaseInterFace<T> {
     public boolean checkExist(Class<T> entityClass,String filter) throws Exception;
     public String save(T entity) throws Exception;
     public String test();
+    public List<T> findAll()throws Exception;
 }

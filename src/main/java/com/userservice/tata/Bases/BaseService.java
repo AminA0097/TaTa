@@ -106,4 +106,9 @@ public class BaseService<T> implements BaseInterFace<T> {
     public String test() {
         return "Test";
     }
+
+    @Override
+    public List<T> findAll() throws Exception {
+        return null;
+    }
 }
