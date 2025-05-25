@@ -1,10 +1,11 @@
 package com.userservice.tata.Person;
 
+import com.userservice.tata.Bases.BaseEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "PERSONTABLE")
-public class PersonEntity {
+public class PersonEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "PERSON_ID")

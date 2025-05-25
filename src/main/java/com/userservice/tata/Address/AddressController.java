@@ -1,5 +1,6 @@
 package com.userservice.tata.Address;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,19 +12,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/addresses")
 public class AddressController {
-    private final AddressService addressService;
 
-    public AddressController(AddressService addressService) {
-        this.addressService = addressService;
-    }
+    @Autowired
+    private  AddressService addressService;
     @GetMapping("/find")
-    public List<AddressEntity> getFilteredAddresses() throws Exception {
-        String filter = "e.AddressStatus@1;";
-        return addressService.getList(filter,0,2);
-    }
-    @GetMapping("/active")
-    public boolean checkDone() throws Exception {
-        return addressService.makeActive(1);
+    public List<?> getFilteredAddresses() throws Exception {
+//        String filter = "e.AddressStatus@eq1;";
+        String filter = "e.deleted@eq0;e.Address@eqNiavaran";
+        return addressService.getList(filter,1,5);
     }
     @GetMapping("/test")
     public String test() throws Exception {

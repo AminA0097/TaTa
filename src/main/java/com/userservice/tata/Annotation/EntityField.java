@@ -1,4 +1,4 @@
-package com.userservice.tata.More;
+package com.userservice.tata.Annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

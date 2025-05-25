@@ -1,4 +1,4 @@
-package com.userservice.tata.More;
+package com.userservice.tata.Annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DtoField {
-    String entityField();
-    Class<?> entityClass();
+public @interface IsBoolean {
 }

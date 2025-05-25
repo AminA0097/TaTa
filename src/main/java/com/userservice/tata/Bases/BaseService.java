@@ -1,114 +1,108 @@
 package com.userservice.tata.Bases;
 
-import com.userservice.tata.Address.AddressEntity;
-import com.userservice.tata.More.EntityField;
-import com.userservice.tata.More.IsBoolean;
-import com.userservice.tata.More.Remote;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.PathBuilder;
+import com.userservice.tata.Annotation.EntityField;
+import com.userservice.tata.Annotation.IsBoolean;
+import com.userservice.tata.Filter.QueryDSL;
+import com.userservice.tata.Filter.QueryDSL.*;
+import com.userservice.tata.Util.Mapper;
+import com.userservice.tata.Util.Remote;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-
 public class BaseService<T> implements BaseInterFace<T> {
+
     @Autowired
     private ApplicationContext applicationContext;
-    @Override
-    public Specification<T> createFilter(Class<T> entityClass, String filter) throws Exception {
-        System.out.println("Entering createFilter with filter: " + filter);
-        return (root, query, criteriaBuilder) -> {
-            if (filter == null || filter.isEmpty()) {
-                return null;
-            }
-
-            List<Predicate> predicates = new ArrayList<>();
-            String[] filters = filter.split(";");
-
-            for (String f : filters) {
-                if (!f.startsWith("e")) continue;
-
-                String[] fs = f.substring(2).split("@");
-                if (fs.length != 2) continue;
-
-                String fieldName = fs[0];
-                String value = fs[1];
-
-                String[] fieldParts = fieldName.split("\\.");
-                Path<?> path = root;
-                Class<?> clazz = entityClass;
-                Field currentEntityField = null;
-
-                for (int i = 0; i < fieldParts.length; i++) {
-                    String segment = fieldParts[i];
-                    try {
-                        currentEntityField = clazz.getDeclaredField(segment);
-                    } catch (NoSuchFieldException e) {
-                        throw new RuntimeException("Field not found: " + segment, e);
-                    }
-
-                    if (i < fieldParts.length - 1) {
-                        if (currentEntityField.isAnnotationPresent(EntityField.class)) {
-                            path = root.join(segment);
-                            clazz = currentEntityField.getType();
-                        } else {
-                            path = path.get(segment);
-                            clazz = currentEntityField.getType();
-                        }
-                    } else {
-                        path = path.get(segment);
-                        clazz = currentEntityField.getType();
-                    }
-                }
-
-                Object typedValue = value;
-                if (currentEntityField != null && currentEntityField.isAnnotationPresent(IsBoolean.class)) {
-                    if (value.equalsIgnoreCase("0") || value.equalsIgnoreCase("false")) {
-                        typedValue = false;
-                    } else if (value.equalsIgnoreCase("1") || value.equalsIgnoreCase("true")) {
-                        typedValue = true;
-                    } else {
-                        throw new IllegalArgumentException("Invalid boolean value: " + value);
-                    }
-                }
-
-                Predicate predicate = criteriaBuilder.equal(path, typedValue);
-                predicates.add(predicate);
-            }
-
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
-    }
-
-    @Override
-    public boolean checkExist(Class<T> entityClass, String filter) throws Exception {
-        String repoName = Remote.getRepoNameFromRemote(entityClass);
-        Specification<T> specification = createFilter(entityClass,filter);
-        JpaSpecificationExecutor<T> repository = (JpaSpecificationExecutor<T>)applicationContext.getBean(repoName);
-        int res =  (int) repository.count(specification);
-        if(res >0){
+    @Autowired
+    private EntityManager em;
+    public boolean convertToBoolean(String value) {
+        if (value.equals("0")) {
+            return false;
+        } else if (value.equals("1")) {
             return true;
+        } else {
+            throw new IllegalArgumentException("Invalid boolean value: " + value);
         }
-        return false;
+    }
+    protected List<String> getConstraint(List filter) throws Exception {
+        List filterList = new ArrayList();
+        if(!filter.contains("e.deleted@eq0;")) {
+//            filterList.add("e.deleted@eq0;");
+        }
+        if(filter.size() != 0) {
+            for (Object o : filter) {
+                filterList.add(o.toString());
+            }
+        }
+        return filterList;
+    }
+    @Override
+    public List<?> getList(String filter, int pageNum, int pageSize) throws Exception {
+        pageNum = pageNum > 0 ? pageNum : 1;  // Page numbers start from 1
+        pageSize = pageSize > 20 ? pageSize : 20;
+        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+
+        String repoName = Remote.getRepoNameFromRemote();
+        Class<?> entityClass = Remote.getEntityClassFromRemote();
+        Class<?> dtoClass = Remote.getDtoNameFromRemote();
+
+        QueryDSL queryDSL = new QueryDSL();
+        BooleanBuilder predicate = queryDSL.createFilter(entityClass, filter);
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        PathBuilder<?> entityPath = new PathBuilder<>(entityClass, "e");
+        List<?> results = queryFactory.select(entityPath)
+                .from(entityPath)
+                .where(predicate)
+                .offset((pageNum - 1) * pageSize)
+                .limit(pageSize)
+                .fetch();
+
+        if (results.isEmpty()) {
+            throw new Exception("No data found");
+        }
+
+        return Mapper.mapToDto(dtoClass, results);
     }
 
-    @Override
-    public String save(T entity) throws Exception {
-        return "";
-    }
 
     @Override
     public String test() {
-        return "Test";
+        String repoName = Remote.getRepoNameFromRemote();
+        System.out.println(repoName);
+        return repoName;
     }
 
+
     @Override
-    public List<T> findAll() throws Exception {
-        return null;
+    public boolean checkExist(String filter) throws Exception {
+        String repoName = Remote.getRepoNameFromRemote();
+        Class<?> entityClass = Remote.getEntityClassFromRemote();
+
+        QueryDSL queryDSL = new QueryDSL();
+        BooleanBuilder predicate = queryDSL.createFilter(entityClass, filter);
+
+        QuerydslPredicateExecutor<?> predicateRepository =
+                (QuerydslPredicateExecutor<?>) applicationContext.getBean(repoName);
+
+        return predicateRepository.exists(predicate);
     }
+
+
 }

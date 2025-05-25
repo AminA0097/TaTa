@@ -1,16 +1,15 @@
 package com.userservice.tata.Address;
 
 
-import com.userservice.tata.More.DtoField;
-import com.userservice.tata.Person.PersonDto;
+import com.userservice.tata.Annotation.DtoField;
 import com.userservice.tata.Person.PersonEntity;
 
 public class AddressDto {
     private String Address;
     private boolean AddressStatus;
-    private long AddressID;
-    @DtoField(entityField = "person.personId",entityClass = PersonEntity.class)
-    private long personId;
+    private long AddressId;
+    @DtoField(entityField = "person.personName",entityClass = PersonEntity.class)
+    private String JoinPerson;
 
     public String getAddress() {
         return Address;
@@ -28,19 +27,19 @@ public class AddressDto {
         AddressStatus = addressStatus;
     }
 
-    public long getAddressID() {
-        return AddressID;
+    public long getAddressId() {
+        return AddressId;
     }
 
-    public void setAddressID(long addressID) {
-        AddressID = addressID;
+    public void setAddressId(long addressId) {
+        AddressId = addressId;
     }
 
-    public long getPersonId() {
-        return personId;
+    public String getJoinPerson() {
+        return JoinPerson;
     }
 
-    public void setPersonId(long personId) {
-        this.personId = personId;
+    public void setJoinPerson(String joinPerson) {
+        JoinPerson = joinPerson;
     }
 }

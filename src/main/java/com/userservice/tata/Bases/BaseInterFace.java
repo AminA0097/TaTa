@@ -3,9 +3,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 public interface BaseInterFace<T> {
-    public Specification<T> createFilter(Class<T> entityClass, String filter) throws Exception;
-    public boolean checkExist(Class<T> entityClass,String filter) throws Exception;
-    public String save(T entity) throws Exception;
+    public boolean checkExist(String filter) throws Exception;
+    public List<?> getList(String filter,int pageNum,int pageSize)throws Exception;
     public String test();
-    public List<T> findAll()throws Exception;
 }

@@ -1,4 +1,4 @@
-package com.userservice.tata.More;
+package com.userservice.tata.Util;
 
 import jakarta.persistence.AttributeConverter;
 

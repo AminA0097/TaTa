@@ -1,14 +1,15 @@
 package com.userservice.tata.Address;
 
-import com.userservice.tata.More.EntityField;
-import com.userservice.tata.More.IsBoolean;
-import com.userservice.tata.More.convertToDatabaseColumn;
+import com.userservice.tata.Bases.BaseEntity;
+import com.userservice.tata.Annotation.EntityField;
+import com.userservice.tata.Annotation.IsBoolean;
+import com.userservice.tata.Util.convertToDatabaseColumn;
 import com.userservice.tata.Person.PersonEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "ADDRESSTABLE")
-public class AddressEntity {
+public class AddressEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ADDRESS_ID")
@@ -26,7 +27,6 @@ public class AddressEntity {
     @JoinColumn(name = "JOIN_PERSON_ID")
     @EntityField()
     private PersonEntity JoinPerson;
-
     public long getAddressID() {
         return AddressID;
     }
