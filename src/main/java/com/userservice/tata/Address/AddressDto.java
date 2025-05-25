@@ -9,8 +9,14 @@ public class AddressDto {
     private boolean AddressStatus;
     private long AddressId;
     @DtoField(entityField = "person.personName",entityClass = PersonEntity.class)
-    private String JoinPerson;
+    private String personName;
 
+    public AddressDto(AddressEntity addressEntity) {
+        this.AddressId = addressEntity.getAddressID() ;
+        this.Address = addressEntity.getAddress() == null ? "No Address!" :addressEntity.getAddress() ;
+        this.AddressStatus = addressEntity.isAddressStatus() ;
+        this.personName = addressEntity.getJoinPerson().getPersonName() == null ? "No Named!" :addressEntity.getJoinPerson().getPersonName() ;
+    }
     public String getAddress() {
         return Address;
     }
@@ -35,11 +41,11 @@ public class AddressDto {
         AddressId = addressId;
     }
 
-    public String getJoinPerson() {
-        return JoinPerson;
+    public String getPersonName() {
+        return personName;
     }
 
-    public void setJoinPerson(String joinPerson) {
-        JoinPerson = joinPerson;
+    public void setPersonName(String personName) {
+        this.personName = personName;
     }
 }

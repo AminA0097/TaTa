@@ -2,6 +2,7 @@ package com.userservice.tata.Bases;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.userservice.tata.Address.AddressDto;
 import com.userservice.tata.Filter.QueryDSL;
 import com.userservice.tata.Util.Remote;
 import jakarta.persistence.EntityManager;
@@ -11,8 +12,10 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BaseService<T> implements BaseInterFace<T> {
@@ -48,7 +51,7 @@ public class BaseService<T> implements BaseInterFace<T> {
         pageNum = pageNum > 0 ? pageNum : 1;
         pageSize = pageSize > 20 ? pageSize : 20;
 
-        Class<?> dtoClass = Remote.getDtoNameFromRemote();
+        Class<?> dtoClass = Remote.getDtoNameFromRemote(this.getClass());
         Class<?> entityClass = Remote.getEntityClassFromRemote(this.getClass());
         QueryDSL queryDSL = new QueryDSL();
         BooleanBuilder predicate = queryDSL.createFilter(entityClass, filter);
@@ -60,10 +63,16 @@ public class BaseService<T> implements BaseInterFace<T> {
                 .offset((pageNum - 1) * pageSize)
                 .limit(pageSize)
                 .fetch();
-        if (results.isEmpty()) {
+        Constructor<?> constructor = dtoClass.getConstructor(entityClass);
+        List<Object> list = new ArrayList<>();
+        for (Object o : results) {
+            list.add(constructor.newInstance(o));
+        }
+        if (list.isEmpty()) {
             throw new Exception("No data found");
         }
-        return results;
+
+        return list;
 //        return Mapper.mapToDto(dtoClass, results);
     }
 

@@ -72,30 +72,19 @@ public class Remote {
 
 
 
-    public static Class<?> getDtoNameFromRemote() {
+    public static Class<?> getDtoNameFromRemote(Class<?> clazz) {
         try {
-            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-            if (stack.length > 3) {
-                String callerClassName = stack[3].getClassName();
-                String simpleCaller = callerClassName.substring(callerClassName.lastIndexOf('.') + 1);
-                String entityName;
-                String entityNameS = "";
-                if (simpleCaller.endsWith("Service")) {
-                    entityName = simpleCaller.replace("Service", "Dto");
-                } else if (simpleCaller.endsWith("Controller")) {
-                    entityName = simpleCaller.replace("Controller", "Dto");
-                } else {
-                    return null;
+            if (clazz != null) {
+                String simpleClassName = clazz.getSimpleName();
+                String dtoName;
+                if (simpleClassName.endsWith("Service")) {
+                    dtoName = simpleClassName.replace("Service", "Dto");
+                    String basePackage = clazz.getPackageName();
+                    String fullEntityClassName = basePackage + "." + dtoName;
+                    return Class.forName(fullEntityClassName);
                 }
-                if (entityName.endsWith("Dto")) {
-                    entityNameS = entityName.replace("Dto", "");
-                }
-                String entityPackage = "com.userservice.tata";
-                String fullEntityClassName = entityPackage + "." + entityNameS + "." + entityName;
-
-                return Class.forName(fullEntityClassName);
             }
-        } catch (Exception e) {
+        }catch (Exception e) {
             e.printStackTrace();
         }
         return null;
