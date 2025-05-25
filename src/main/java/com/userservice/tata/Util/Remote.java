@@ -3,12 +3,18 @@ package com.userservice.tata.Util;
 public class Remote {
     public static <T> T makeRemote(Class<T> clazz) throws Exception {
         String className = clazz.getSimpleName();
-        String entiyName = className.replace("InterFace", "Service");
-        String fullClassName = "com.userservice.tata" + entiyName;
+        String simpleName = className.replace("InterFace", "");
+        String serviceName = simpleName + "Service";
+        String fullClassName = "com.userservice.tata." + simpleName + "." + serviceName;
+
         Class<?> implClass = Class.forName(fullClassName);
-        Object instance = implClass.getDeclaredConstructor().newInstance();
+
+
+        Object instance = SpringContextHelper.getContext().getBean(implClass);
         return clazz.cast(instance);
     }
+
+
 
     public static <T> String getRepoNameFromRemote(Class<T> entityClass) {
         String fullClassName = entityClass.getSimpleName();
@@ -37,26 +43,24 @@ public class Remote {
         return null;
     }
 
-    public static Class<?> getEntityClassFromRemote() {
+    public static Class<?> getEntityClassFromRemote(Class<?> clazz) {
         try {
-            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-            if (stack.length > 3) {
-                String callerClassName = stack[3].getClassName();
-                String simpleCaller = callerClassName.substring(callerClassName.lastIndexOf('.') + 1);
+            if (clazz != null) {
+                String simpleClassName = clazz.getSimpleName();
                 String entityName;
-                String entityNameS = "";
-                if (simpleCaller.endsWith("Service")) {
-                    entityName = simpleCaller.replace("Service", "Entity");
-                } else if (simpleCaller.endsWith("Controller")) {
-                    entityName = simpleCaller.replace("Controller", "Entity");
+                String entityNameWithoutSuffix = "";
+
+                if (simpleClassName.endsWith("Service")) {
+                    entityName = simpleClassName.replace("Service", "Entity");
+                    entityNameWithoutSuffix = simpleClassName.replace("Service", "");
+                } else if (simpleClassName.endsWith("Controller")) {
+                    entityName = simpleClassName.replace("Controller", "Entity");
+                    entityNameWithoutSuffix = simpleClassName.replace("Controller", "");
                 } else {
                     return null;
                 }
-                if (entityName.endsWith("Entity")) {
-                    entityNameS = entityName.replace("Entity", "");
-                }
-                String entityPackage = "com.userservice.tata";
-                String fullEntityClassName = entityPackage + "." + entityNameS + "." + entityName;
+                String basePackage = clazz.getPackageName();
+                String fullEntityClassName = basePackage + "." + entityName;
 
                 return Class.forName(fullEntityClassName);
             }
@@ -65,6 +69,8 @@ public class Remote {
         }
         return null;
     }
+
+
 
     public static Class<?> getDtoNameFromRemote() {
         try {

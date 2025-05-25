@@ -1,5 +1,6 @@
 package com.userservice.tata.Address;
 
+import com.userservice.tata.Util.Remote;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,8 +19,10 @@ public class AddressController {
     @GetMapping("/find")
     public List<?> getFilteredAddresses() throws Exception {
 //        String filter = "e.AddressStatus@eq1;";
-        String filter = "e.deleted@eq0;e.Address@eqNiavaran";
-        return addressService.getList(filter,1,5);
+//        String filter = "e.JoinPerson.personId@eq1;e.AddressStatus@eq1;";
+        String filter = "e.AddressStatus@eq1;";
+        AddressInterFace addressInterFace = (AddressInterFace) Remote.makeRemote(AddressInterFace.class);
+        return addressInterFace.getList(filter,1,5);
     }
     @GetMapping("/test")
     public String test() throws Exception {

@@ -12,10 +12,6 @@ public class AddressService extends BaseService<AddressEntity> implements Addres
     @Autowired
     private AddressRepo addressRepo;
 
-    public AddressService(AddressRepo addressRepo) {
-        this.addressRepo = addressRepo;
-    }
-
     @Override
     protected List<String> getConstraint(List filter) throws Exception {
         List <String> list = new ArrayList<String>();

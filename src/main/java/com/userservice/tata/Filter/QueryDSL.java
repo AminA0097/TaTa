@@ -40,7 +40,7 @@ public class QueryDSL<T> {
             for (String op : SUPPORTED_OP) {
                 if (operatorAndValue.startsWith(op)) {
                     operator = op;
-                     value = operatorAndValue.substring(op.length());
+                    value = operatorAndValue.substring(op.length());
                     break;
                 }
             }
@@ -71,7 +71,6 @@ public class QueryDSL<T> {
             Class<?> fieldType = field.getType();
 
             if (i < parts.length - 1) {
-                // برای فیلدهای تو در تو، PathBuilder جدید بساز
                 path = ((PathBuilder<?>) path).get(part);
                 currentClass = fieldType;
             } else {
@@ -144,7 +143,8 @@ public class QueryDSL<T> {
         if (type.equals(String.class)) return value;
         if (type.equals(Integer.class) || type.equals(int.class)) return Integer.parseInt(value);
         if (type.equals(Long.class) || type.equals(long.class)) return Long.parseLong(value);
-        if (type.equals(Boolean.class) || type.equals(boolean.class)) return Boolean.parseBoolean(value);
+        if (type.equals(Boolean.class) || type.equals(boolean.class))
+            return value.equals("1") ? true : false;
         if (type.equals(Double.class) || type.equals(double.class)) return Double.parseDouble(value);
         return value;
     }
