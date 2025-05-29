@@ -6,7 +6,7 @@ import com.userservice.tata.Person.PersonEntity;
 
 public class AddressDto {
     private String Address;
-    private boolean AddressStatus;
+    private String AddressStatus;
     private long AddressId;
     @DtoField(entityField = "person.personName",entityClass = PersonEntity.class)
     private String personName;
@@ -14,9 +14,10 @@ public class AddressDto {
     public AddressDto(AddressEntity addressEntity) {
         this.AddressId = addressEntity.getAddressID() ;
         this.Address = addressEntity.getAddress() == null ? "No Address!" :addressEntity.getAddress() ;
-        this.AddressStatus = addressEntity.isAddressStatus() ;
+        this.AddressStatus = addressEntity.isAddressStatus() == true ? "Active" : "NotActive";
         this.personName = addressEntity.getJoinPerson().getPersonName() == null ? "No Named!" :addressEntity.getJoinPerson().getPersonName() ;
     }
+
     public String getAddress() {
         return Address;
     }
@@ -25,11 +26,11 @@ public class AddressDto {
         Address = address;
     }
 
-    public boolean isAddressStatus() {
+    public String getAddressStatus() {
         return AddressStatus;
     }
 
-    public void setAddressStatus(boolean addressStatus) {
+    public void setAddressStatus(String addressStatus) {
         AddressStatus = addressStatus;
     }
 

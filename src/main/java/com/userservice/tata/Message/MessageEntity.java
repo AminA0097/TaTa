@@ -1,9 +1,14 @@
 package com.userservice.tata.Message;
 
+import com.userservice.tata.Annotation.EntityField;
 import com.userservice.tata.Annotation.IsBoolean;
 import com.userservice.tata.Bases.BaseEntity;
+import com.userservice.tata.Doc.DocEntity;
+import com.userservice.tata.User.UserEntity;
 import com.userservice.tata.Util.convertToDatabaseColumn;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "MESSEGAETABLE")
@@ -12,20 +17,38 @@ public class MessageEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "MESSAGE_ID")
     private long messageId;
-    @Column(name = "MESSAGE_CONTENT",length = 1000)
-    private String messageContent;
-    @Column(name = "MESSAGE_SENDER")
-    private String sender;
-    @Column(name = "MESSAGE_RECIVER")
-    private String receiver;
-    @Convert(converter = convertToDatabaseColumn.class)
+
+    @Column(name = "MESSAGE_TITLE",length = 1000)
+    private String messageTitle;
+
+    @ManyToOne
+    @JoinColumn(name = "MESSAGE_SENDER")
+    @EntityField()
+    private UserEntity sender;
+
+    @ManyToMany
+    @JoinTable(
+            name = "MESSAGE_RECEVIER_M2m",
+            joinColumns = @JoinColumn(name = "MESSAGE_ID"),
+            inverseJoinColumns = @JoinColumn(name = "USER_ID")
+    )
+    @EntityField()
+    private List<UserEntity> receiver;
+
     @Column(name = "MESSAGE_IS_SEEN")
     @IsBoolean()
-    private boolean isSeen;
     @Convert(converter = convertToDatabaseColumn.class)
+    private boolean isSeen;
+
     @Column(name = "MESSAGE_IS_SENT")
     @IsBoolean()
+    @Convert(converter = convertToDatabaseColumn.class)
     private boolean isSent;
+
+    @ManyToOne
+    @JoinColumn(name = "DOC_Id")
+    @EntityField()
+    private DocEntity docEntity;
 
     public long getMessageId() {
         return messageId;
@@ -35,27 +58,27 @@ public class MessageEntity extends BaseEntity {
         this.messageId = messageId;
     }
 
-    public String getMessageContent() {
-        return messageContent;
+    public String getMessageTitle() {
+        return messageTitle;
     }
 
-    public void setMessageContent(String messageContent) {
-        this.messageContent = messageContent;
+    public void setMessageTitle(String messageTitle) {
+        this.messageTitle = messageTitle;
     }
 
-    public String getSender() {
+    public UserEntity getSender() {
         return sender;
     }
 
-    public void setSender(String sender) {
+    public void setSender(UserEntity sender) {
         this.sender = sender;
     }
 
-    public String getReceiver() {
+    public List<UserEntity> getReceiver() {
         return receiver;
     }
 
-    public void setReceiver(String receiver) {
+    public void setReceiver(List<UserEntity> receiver) {
         this.receiver = receiver;
     }
 
@@ -73,6 +96,14 @@ public class MessageEntity extends BaseEntity {
 
     public void setSent(boolean sent) {
         isSent = sent;
+    }
+
+    public DocEntity getDocEntity() {
+        return docEntity;
+    }
+
+    public void setDocEntity(DocEntity docEntity) {
+        this.docEntity = docEntity;
     }
 }
 

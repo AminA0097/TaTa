@@ -33,28 +33,31 @@ public class BaseService<T> implements BaseInterFace<T> {
             throw new IllegalArgumentException("Invalid boolean value: " + value);
         }
     }
-    protected List<String> getConstraint(List filter) throws Exception {
-        List filterList = new ArrayList();
-        if(!filter.contains("e.deleted@eq0;")) {
-            filterList.add("e.deleted@eq0;");
+    protected String buildFinalFilter(String filter)throws Exception {
+        if (filter != null && !filter.trim().isEmpty()) {
+            return filter.trim();
         }
-        if(filter.size() != 0) {
-            for (Object o : filter) {
-                filterList.add(o.toString());
-            }
+        List<String> constraintFilters = getConstraint();
+        return String.join(";",constraintFilters);
+
+    }
+    protected List<String> getConstraint() throws Exception {
+        List<String> constraints = new ArrayList<>();
+        if(!constraints.contains("e.deleted@eq0")){
+            constraints.add("e.deleted@eq0");
         }
-        return filterList;
+        return constraints;
     }
     @Override
     @Transactional
     public List<?> getList(String filter, int pageNum, int pageSize) throws Exception {
         pageNum = pageNum > 0 ? pageNum : 1;
         pageSize = pageSize > 20 ? pageSize : 20;
-
+        String finalFilter = buildFinalFilter(filter);
         Class<?> dtoClass = Remote.getDtoNameFromRemote(this.getClass());
         Class<?> entityClass = Remote.getEntityClassFromRemote(this.getClass());
         QueryDSL queryDSL = new QueryDSL();
-        BooleanBuilder predicate = queryDSL.createFilter(entityClass, filter);
+        BooleanBuilder predicate = queryDSL.createFilter(entityClass, finalFilter);
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         PathBuilder<?> entityPath = new PathBuilder<>(entityClass, "e");
         List<?> results = queryFactory.select(entityPath)

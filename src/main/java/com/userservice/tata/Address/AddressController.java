@@ -20,7 +20,8 @@ public class AddressController {
     public List<?> getFilteredAddresses() throws Exception {
 //        String filter = "e.AddressStatus@eq1;";
 //        String filter = "e.JoinPerson.personId@eq1;e.AddressStatus@eq1;";
-        String filter = "e.AddressStatus@eq1;";
+//        String filter = "e.JoinPerson.personId@eq1;e.deleted@eq0";
+        String filter = "";
         AddressInterFace addressInterFace = (AddressInterFace) Remote.makeRemote(AddressInterFace.class);
         return addressInterFace.getList(filter,1,5);
     }

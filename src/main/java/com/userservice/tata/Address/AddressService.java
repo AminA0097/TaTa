@@ -11,11 +11,10 @@ import java.util.List;
 public class AddressService extends BaseService<AddressEntity> implements AddressInterFace {
     @Autowired
     private AddressRepo addressRepo;
-
     @Override
-    protected List<String> getConstraint(List filter) throws Exception {
-        List <String> list = new ArrayList<String>();
-        list.add("e.AddressStatus@0");
-        return super.getConstraint(list);
+    protected List<String> getConstraint() throws Exception {
+        List<String> filters =  super.getConstraint();
+        filters.add("e.AddressStatus@eq1");
+        return filters;
     }
 }
